@@ -25,46 +25,46 @@ class SnakeClient:
         return enemy_snake
 
 
+# class Snake():
+#     """
+#     Snake Logic
+#     """
+#     def __init__(self):
+#         pass
+#     def DrawSnake(self, snake, head_color):
+#         for index, value in enumerate(self.snake):
+#             try:
+#                 next_value = self.snake[index + 1]
+#                 if next_value[0] > value[0]:
+#                     pygame.draw.rect(self.screen, self.yellow,
+#                                      (value[0] - 8, value[1] - 8, 20, 16))
+#                 elif next_value[0] < value[0]:
+#                     pygame.draw.rect(self.screen, self.yellow,
+#                                      (value[0] - 12, value[1] - 8, 20, 16))
+#                 elif next_value[1] > value[1]:
+#                     pygame.draw.rect(self.screen, self.yellow,
+#                                      (value[0] - 8, value[1] - 8, 16, 20))
+#                 elif next_value[1] < value[1]:
+#                     pygame.draw.rect(self.screen, self.yellow,
+#                                      (value[0] - 8, value[1] - 12, 16, 20))
+#             except:
+#                 pygame.draw.rect(self.screen, self.blue,
+#                                  (value[0] - 8, value[1] - 8, 16, 16))    
+    
+# class MultipSnake():
+#     """
+#     Multiplayer Snake
+#     """
+#     def __init__(self):
+#         pass
+
 class Snake():
     """
-    Snake Logic
-    """
-    def __init__(self):
-        pass
-    def DrawSnake(self, snake, head_color):
-        for index, value in enumerate(self.snake):
-            try:
-                next_value = self.snake[index + 1]
-                if next_value[0] > value[0]:
-                    pygame.draw.rect(self.screen, self.yellow,
-                                     (value[0] - 8, value[1] - 8, 20, 16))
-                elif next_value[0] < value[0]:
-                    pygame.draw.rect(self.screen, self.yellow,
-                                     (value[0] - 12, value[1] - 8, 20, 16))
-                elif next_value[1] > value[1]:
-                    pygame.draw.rect(self.screen, self.yellow,
-                                     (value[0] - 8, value[1] - 8, 16, 20))
-                elif next_value[1] < value[1]:
-                    pygame.draw.rect(self.screen, self.yellow,
-                                     (value[0] - 8, value[1] - 12, 16, 20))
-            except:
-                pygame.draw.rect(self.screen, self.blue,
-                                 (value[0] - 8, value[1] - 8, 16, 16))    
-    
-class MultipSnake():
-    """
-    Multiplayer Snake
-    """
-    def __init__(self):
-        pass
-
-class SinglpSnake():
-    """
-    Singleplayer Snake
+    Single/MultiPlayer Snake
     """
 
-    def __init__(self):
-
+    def __init__(self, Multiplayer=False):
+        self.Multiplayer = Multiplayer
         self.yellow = (255, 255, 0)
         self.blue = (0, 0, 255)
         self.green = (0, 255, 0)
@@ -79,9 +79,13 @@ class SinglpSnake():
         self.food_pos = []
         self.direction = "Up"
         self.move_allowed = True
-        # self.sc = SnakeClient()
-        # self.sc.Connect()
+        if self.Multiplayer:
+            self.sc = SnakeClient()
+            self.sc.Connect()
+        self.enemy_snake = []
+
         self.GameLoop()
+
 
     def GameLoop(self):
 
@@ -108,31 +112,42 @@ class SinglpSnake():
             self.HeadPosition = self.snake[-1]
             self.MoveSnake()
             self.MapBorder()
-            self.DrawSnake()
-            self.Food()
+
+            
+            self.DrawSnake(self.snake, self.blue, self.yellow)
+            if self.Multiplayer:
+
+                self.sc.Send(self.snake)
+                self.enemy_snake = self.sc.Receive()
+                self.food_pos = self.enemy_snake[-1]
+                self.Food()
+                self.enemy_snake = self.enemy_snake[:-1]
+                self.DrawSnake(self.enemy_snake, self.blue, self.green)
+            else:
+                self.Food()  
             self.GetTailHit()
 
             self.move_allowed = True
             pygame.display.flip()
             self.clock.tick(10)
-    def DrawSnake(self):
-        for index, value in enumerate(self.snake):
+    def DrawSnake(self, snake, head_color, tail_color):
+        for index, value in enumerate(snake):
             try:
-                next_value = self.snake[index + 1]
+                next_value = snake[index + 1]
                 if next_value[0] > value[0]:
-                    pygame.draw.rect(self.screen, self.yellow,
+                    pygame.draw.rect(self.screen, tail_color,
                                      (value[0] - 8, value[1] - 8, 20, 16))
                 elif next_value[0] < value[0]:
-                    pygame.draw.rect(self.screen, self.yellow,
+                    pygame.draw.rect(self.screen, tail_color,
                                      (value[0] - 12, value[1] - 8, 20, 16))
                 elif next_value[1] > value[1]:
-                    pygame.draw.rect(self.screen, self.yellow,
+                    pygame.draw.rect(self.screen, tail_color,
                                      (value[0] - 8, value[1] - 8, 16, 20))
                 elif next_value[1] < value[1]:
-                    pygame.draw.rect(self.screen, self.yellow,
+                    pygame.draw.rect(self.screen, tail_color,
                                      (value[0] - 8, value[1] - 12, 16, 20))
             except:
-                pygame.draw.rect(self.screen, self.blue,
+                pygame.draw.rect(self.screen, head_color,
                                  (value[0] - 8, value[1] - 8, 16, 16))
 
     def SnakeDead(self):
@@ -188,9 +203,9 @@ class SinglpSnake():
             self.snake.insert(0, self.snake[0])
 
     def GetTailHit(self):
-        if self.HeadPosition in self.snake[:-1]:
+        if self.HeadPosition in self.snake[:-1] or  self.HeadPosition in self.enemy_snake:
             self.SnakeDead()
 
 
 if __name__ == "__main__":
-    SinglpSnake()
+    Snake(True)
