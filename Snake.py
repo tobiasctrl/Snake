@@ -38,11 +38,13 @@ class Snake():
         self.blue = (0, 0, 255)
         self.green = (0, 255, 0)
         self.red = (255, 0, 0)
+        self.magenta = (255, 0, 255)
+        self.cyan = (0, 255, 255)
         pygame.init()
         self.screen = pygame.display.set_mode((600, 600))
 
         pygame.display.set_caption('Snake')
-        
+
         self.snake = [[300, 300], [300, 320]]
         self.running = True
         self.food_pos = []
@@ -54,8 +56,6 @@ class Snake():
             self.sc.Connect()
         self.enemy_snake = []
 
-        
-        
         self.GameLoop()
 
     def KeyPressed(self):
@@ -69,17 +69,15 @@ class Snake():
         elif key_input[pygame.K_LEFT] and self.current_direction != "Right":
             self.direction = "Left"
 
-
-
     def GameLoop(self):
-        fps = 8
+        fps = 10
         frametime = 1/fps
         t = time.time()
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-                
+
                 self.KeyPressed()
             if time.time() - t >= frametime:
 
@@ -96,16 +94,13 @@ class Snake():
                     self.food_pos = self.enemy_snake[-1]
                     self.Food()
                     self.enemy_snake = self.enemy_snake[:-1]
-                    self.DrawSnake(self.enemy_snake, self.blue, self.green)
+                    self.DrawSnake(self.enemy_snake, self.magenta, self.cyan)
                 else:
                     self.Food()
                 self.GetTailHit()
 
-                
-                
                 pygame.display.flip()
                 t = time.time()
-            
 
     def DrawSnake(self, snake, head_color, tail_color):
         for index, value in enumerate(snake):
@@ -165,6 +160,7 @@ class Snake():
                 if self.direction == "Right":
                     self.snake[index][0] += 20
         self.current_direction = self.direction
+
     def Food(self):
 
         while not self.food_pos:
@@ -185,4 +181,4 @@ class Snake():
 
 
 if __name__ == "__main__":
-    Snake(False)
+    Snake(True)

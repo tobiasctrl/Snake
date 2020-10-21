@@ -14,6 +14,7 @@ class SnakeServer:
         food_pos = []
         data_snake_1 = []
         data_snake_2 = []
+        no_food = True
         while True:
 
             data_snake_1 = Connections[0].recv(1024)
@@ -25,7 +26,10 @@ class SnakeServer:
             
             data_snake_1 = pickle.loads(data_snake_1)
             data_snake_2 = pickle.loads(data_snake_2)
-
+            if not food_pos:
+                no_food = True
+            else:
+                no_food = False
             while not food_pos:
                 x = random.randint(2, 28) * 20
                 y = random.randint(2, 28) * 20
@@ -33,12 +37,14 @@ class SnakeServer:
                     food_pos = [x, y]
                     data_snake_1.append(food_pos)
                     data_snake_2.append(food_pos)
-                    break
+                    
         
                 
             if data_snake_1[-2] == food_pos or data_snake_2[-2] == food_pos:
                 food_pos = []
-            if food_pos:
+                data_snake_1.append([-10,-10])
+                data_snake_2.append([-10,-10])
+            if food_pos and no_food == False:
                 data_snake_1.append(food_pos)
                 data_snake_2.append(food_pos)
                 
