@@ -2,6 +2,7 @@ import pygame
 import random
 import socket
 import pickle
+import time
 
 
 class SnakeClient:
@@ -25,45 +26,13 @@ class SnakeClient:
         return enemy_snake
 
 
-# class Snake():
-#     """
-#     Snake Logic
-#     """
-#     def __init__(self):
-#         pass
-#     def DrawSnake(self, snake, head_color):
-#         for index, value in enumerate(self.snake):
-#             try:
-#                 next_value = self.snake[index + 1]
-#                 if next_value[0] > value[0]:
-#                     pygame.draw.rect(self.screen, self.yellow,
-#                                      (value[0] - 8, value[1] - 8, 20, 16))
-#                 elif next_value[0] < value[0]:
-#                     pygame.draw.rect(self.screen, self.yellow,
-#                                      (value[0] - 12, value[1] - 8, 20, 16))
-#                 elif next_value[1] > value[1]:
-#                     pygame.draw.rect(self.screen, self.yellow,
-#                                      (value[0] - 8, value[1] - 8, 16, 20))
-#                 elif next_value[1] < value[1]:
-#                     pygame.draw.rect(self.screen, self.yellow,
-#                                      (value[0] - 8, value[1] - 12, 16, 20))
-#             except:
-#                 pygame.draw.rect(self.screen, self.blue,
-#                                  (value[0] - 8, value[1] - 8, 16, 16))    
-    
-# class MultipSnake():
-#     """
-#     Multiplayer Snake
-#     """
-#     def __init__(self):
-#         pass
-
 class Snake():
     """
     Single/MultiPlayer Snake
     """
 
     def __init__(self, Multiplayer=False):
+        super().__init__()
         self.Multiplayer = Multiplayer
         self.yellow = (255, 255, 0)
         self.blue = (0, 0, 255)
@@ -73,63 +42,71 @@ class Snake():
         self.screen = pygame.display.set_mode((600, 600))
 
         pygame.display.set_caption('Snake')
-        self.clock = pygame.time.Clock()
+        
         self.snake = [[300, 300], [300, 320]]
         self.running = True
         self.food_pos = []
         self.direction = "Up"
-        self.move_allowed = True
+        self.current_direction = self.direction
+
         if self.Multiplayer:
             self.sc = SnakeClient()
             self.sc.Connect()
         self.enemy_snake = []
 
+        
+        
         self.GameLoop()
+
+    def KeyPressed(self):
+        key_input = pygame.key.get_pressed()
+        if key_input[pygame.K_UP] and self.current_direction != "Down":
+            self.direction = "Up"
+        elif key_input[pygame.K_DOWN] and self.current_direction != "Up":
+            self.direction = "Down"
+        elif key_input[pygame.K_RIGHT] and self.current_direction != "Left":
+            self.direction = "Right"
+        elif key_input[pygame.K_LEFT] and self.current_direction != "Right":
+            self.direction = "Left"
+
 
 
     def GameLoop(self):
-
+        fps = 8
+        frametime = 1/fps
+        t = time.time()
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-                key_input = pygame.key.get_pressed()
+                
+                self.KeyPressed()
+            if time.time() - t >= frametime:
 
-                if key_input[pygame.K_UP] and self.direction != "Down" and self.move_allowed:
-                    self.direction = "Up"
-                    self.move_allowed = False
-                elif key_input[pygame.K_DOWN] and self.direction != "Up" and self.move_allowed:
-                    self.direction = "Down"
-                    self.move_allowed = False
-                elif key_input[pygame.K_RIGHT] and self.direction != "Left" and self.move_allowed:
-                    self.direction = "Right"
-                    self.move_allowed = False
-                elif key_input[pygame.K_LEFT] and self.direction != "Right" and self.move_allowed:
-                    self.direction = "Left"
-                    self.move_allowed = False
+                self.screen.fill((0, 0, 0))
+                self.HeadPosition = self.snake[-1]
+                self.MoveSnake()
+                self.MapBorder()
 
-            self.screen.fill((0, 0, 0))
-            self.HeadPosition = self.snake[-1]
-            self.MoveSnake()
-            self.MapBorder()
+                self.DrawSnake(self.snake, self.blue, self.yellow)
+                if self.Multiplayer:
 
+                    self.sc.Send(self.snake)
+                    self.enemy_snake = self.sc.Receive()
+                    self.food_pos = self.enemy_snake[-1]
+                    self.Food()
+                    self.enemy_snake = self.enemy_snake[:-1]
+                    self.DrawSnake(self.enemy_snake, self.blue, self.green)
+                else:
+                    self.Food()
+                self.GetTailHit()
+
+                
+                
+                pygame.display.flip()
+                t = time.time()
             
-            self.DrawSnake(self.snake, self.blue, self.yellow)
-            if self.Multiplayer:
 
-                self.sc.Send(self.snake)
-                self.enemy_snake = self.sc.Receive()
-                self.food_pos = self.enemy_snake[-1]
-                self.Food()
-                self.enemy_snake = self.enemy_snake[:-1]
-                self.DrawSnake(self.enemy_snake, self.blue, self.green)
-            else:
-                self.Food()  
-            self.GetTailHit()
-
-            self.move_allowed = True
-            pygame.display.flip()
-            self.clock.tick(10)
     def DrawSnake(self, snake, head_color, tail_color):
         for index, value in enumerate(snake):
             try:
@@ -187,7 +164,7 @@ class Snake():
                     self.snake[index][0] -= 20
                 if self.direction == "Right":
                     self.snake[index][0] += 20
-
+        self.current_direction = self.direction
     def Food(self):
 
         while not self.food_pos:
@@ -203,9 +180,9 @@ class Snake():
             self.snake.insert(0, self.snake[0])
 
     def GetTailHit(self):
-        if self.HeadPosition in self.snake[:-1] or  self.HeadPosition in self.enemy_snake:
+        if self.HeadPosition in self.snake[:-1] or self.HeadPosition in self.enemy_snake:
             self.SnakeDead()
 
 
 if __name__ == "__main__":
-    Snake(True)
+    Snake(False)
