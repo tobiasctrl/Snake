@@ -42,8 +42,8 @@ class SnakeServer:
                 
             if data_snake_1[-2] == food_pos or data_snake_2[-2] == food_pos:
                 food_pos = []
-                data_snake_1.append([-10,-10])
-                data_snake_2.append([-10,-10])
+                data_snake_1.append([-20,-20])
+                data_snake_2.append([-20,-20])
             if food_pos and no_food == False:
                 data_snake_1.append(food_pos)
                 data_snake_2.append(food_pos)

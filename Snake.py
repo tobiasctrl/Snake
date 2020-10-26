@@ -108,19 +108,19 @@ class Snake():
                 next_value = snake[index + 1]
                 if next_value[0] > value[0]:
                     pygame.draw.rect(self.screen, tail_color,
-                                     (value[0] - 8, value[1] - 8, 20, 16))
+                                     (value[0] + 2, value[1] + 2, 20, 16))
                 elif next_value[0] < value[0]:
                     pygame.draw.rect(self.screen, tail_color,
-                                     (value[0] - 12, value[1] - 8, 20, 16))
+                                     (value[0] - 2, value[1] + 2, 20, 16))
                 elif next_value[1] > value[1]:
                     pygame.draw.rect(self.screen, tail_color,
-                                     (value[0] - 8, value[1] - 8, 16, 20))
+                                     (value[0] + 2, value[1] + 2, 16, 20))
                 elif next_value[1] < value[1]:
                     pygame.draw.rect(self.screen, tail_color,
-                                     (value[0] - 8, value[1] - 12, 16, 20))
+                                     (value[0] + 2, value[1] - 2, 16, 20))
             except:
                 pygame.draw.rect(self.screen, head_color,
-                                 (value[0] - 8, value[1] - 8, 16, 16))
+                                 (value[0]  + 2, value[1] +2, 16, 16))
 
     def SnakeDead(self):
         self.snake = [[300, 300], [320, 300]]
@@ -139,9 +139,9 @@ class Snake():
         pygame.draw.rect(self.screen, self.green, (border_start,
                                                    border_end, border_end + border_thickness, border_thickness))
 
-        if not border_end > self.HeadPosition[1] > border_thickness:
+        if not border_end > self.HeadPosition[1] > 0:
             self.SnakeDead()
-        if not border_end > self.HeadPosition[0] > border_thickness:
+        if not border_end > self.HeadPosition[0] > 0:
             self.SnakeDead()
 
     def MoveSnake(self):
@@ -169,7 +169,7 @@ class Snake():
             if not [x, y] in self.snake:
                 self.food_pos = [x, y]
         pygame.draw.rect(self.screen, self.red,
-                         (self.food_pos[0] - 8, self.food_pos[1] - 8, 16, 16))
+                         (self.food_pos[0] + 2, self.food_pos[1] + 2, 16, 16))
 
         if self.HeadPosition == self.food_pos:
             self.food_pos = []
@@ -178,6 +178,7 @@ class Snake():
     def GetTailHit(self):
         if self.HeadPosition in self.snake[:-1] or self.HeadPosition in self.enemy_snake:
             self.SnakeDead()
+
 
 
 if __name__ == "__main__":
