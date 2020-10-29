@@ -45,7 +45,6 @@ class Snake():
 
         pygame.display.set_caption('Snake')
 
-        self.snake = [[300, 300], [300, 320]]
         self.running = True
         self.food_pos = []
         self.direction = "Up"
@@ -55,8 +54,32 @@ class Snake():
             self.sc = SnakeClient()
             self.sc.Connect()
         self.enemy_snake = []
-
+        self.snake = self.GetSpawnPos()
         self.GameLoop()
+
+    def GetSpawnPos(self):
+        x = 0
+        y = 0
+        not_in_other_snake = False
+        while True:
+
+            x = random.randint(3, 25) * 20
+            y = random.randint(3, 26) * 20
+            not_in_other_snake = True
+            for yadd in range(0, 200, 20):
+                if not not_in_other_snake:
+                    break
+                for xadd in range(0, 200, 20):
+                    print("Error Respawning")
+                    if (not [x + xadd, y + yadd] in self.enemy_snake and not [x - xadd, y - yadd] in self.enemy_snake and 
+                    not [x + xadd, y - yadd] in self.enemy_snake and not [x - xadd, y + yadd] in self.enemy_snake):
+                        pass
+                    else:
+                        not_in_other_snake = False
+                        break
+            if not_in_other_snake:
+                break
+        return [[x, y], [x+20, y]]
 
     def KeyPressed(self):
         key_input = pygame.key.get_pressed()
@@ -120,10 +143,10 @@ class Snake():
                                      (value[0] + 2, value[1] - 2, 16, 20))
             except:
                 pygame.draw.rect(self.screen, head_color,
-                                 (value[0]  + 2, value[1] +2, 16, 16))
+                                 (value[0] + 2, value[1] + 2, 16, 16))
 
     def SnakeDead(self):
-        self.snake = [[300, 300], [320, 300]]
+        self.snake = self.GetSpawnPos()
 
     def MapBorder(self):
         border_start = 0
@@ -178,7 +201,6 @@ class Snake():
     def GetTailHit(self):
         if self.HeadPosition in self.snake[:-1] or self.HeadPosition in self.enemy_snake:
             self.SnakeDead()
-
 
 
 if __name__ == "__main__":

@@ -73,7 +73,7 @@ class SnakeServer:
                     if i:
                         print("Waiting for 2nd Player to connect")
                     conn, addr = self.s.accept()
-                    print('Connected by', addr)
+                    print('Connected by', addr[0])
                     conn_list.append(conn)
                 except:
                     self.running = False
@@ -111,7 +111,7 @@ class ServerWindow(QMainWindow):
                                 "{"
                                 "background-color : green;"
                                 "}")
-        start_btn.clicked.connect(self.on_start)
+        start_btn.clicked.connect(self.On_start)
 
         stop_btn = QPushButton("Stop", self)
         stop_btn.setToolTip("Stop your Server")
@@ -121,9 +121,10 @@ class ServerWindow(QMainWindow):
                                "{"
                                "background-color : red;"
                                "}")
-        stop_btn.clicked.connect(self.on_stop)
-
-    def on_start(self):
+        stop_btn.clicked.connect(self.On_stop)
+    def PlayerList(self):
+        pass
+    def On_start(self):
         if not self.server_is_online:
             self.server_status.setStyleSheet("background-color: green")
             self.server_status.setText("  Server Status: Online")
@@ -133,7 +134,7 @@ class ServerWindow(QMainWindow):
         else:
             print("Server is allready running")
 
-    def on_stop(self):
+    def On_stop(self):
 
         if self.server_is_online:
             self.server_status.setStyleSheet("background-color: red")
@@ -145,11 +146,11 @@ class ServerWindow(QMainWindow):
             self.server_is_online = False
         else:
             print("Server is allready stopped")
-
+    
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = ServerWindow()
     window.show()
     app.exec_()
-    # SnakeServer().Start()
+
