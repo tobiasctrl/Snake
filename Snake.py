@@ -70,7 +70,6 @@ class Snake():
                 if not not_in_other_snake:
                     break
                 for xadd in range(0, 200, 20):
-                    print("Error Respawning")
                     if (not [x + xadd, y + yadd] in self.enemy_snake and not [x - xadd, y - yadd] in self.enemy_snake and 
                     not [x + xadd, y - yadd] in self.enemy_snake and not [x - xadd, y + yadd] in self.enemy_snake):
                         pass
