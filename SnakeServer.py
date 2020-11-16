@@ -7,6 +7,16 @@ import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 
+def get_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(('0.0.0.0', 1))
+        IP = s.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    return IP
 
 class SnakeServer:
     def __init__(self):
@@ -56,8 +66,8 @@ class SnakeServer:
 
     def Start(self):
         self.running = True
-        HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
-        # Port to listen on (non-privileged ports are > 1023)
+        HOST = get_ip()
+
         PORT = 65432
 
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -153,4 +163,3 @@ if __name__ == "__main__":
     window = ServerWindow()
     window.show()
     app.exec_()
-
