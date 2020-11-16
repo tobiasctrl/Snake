@@ -8,14 +8,11 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 
 def get_ip():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        s.connect(('0.0.0.0', 1))
-        IP = s.getsockname()[0]
+        h_name = socket.gethostname()
+        IP = socket.gethostbyname(h_name)
     except Exception:
         IP = '127.0.0.1'
-    finally:
-        s.close()
     return IP
 
 class SnakeServer:
@@ -112,6 +109,9 @@ class ServerWindow(QMainWindow):
         self.server_status.setStyleSheet("background-color: red")
         self.server_status.resize(150, 30)
         self.server_status.move(0, 0)
+
+        ip_label = QLabel("Local IP:" + get_ip(),self)
+        ip_label.move(200,0)
 
         start_btn = QPushButton("Start", self)
         start_btn.setToolTip("Start your Server")
